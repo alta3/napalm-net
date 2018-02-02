@@ -1,6 +1,5 @@
 ---
  - hosts: switches
-   connection: local
    gather_facts: False
    tasks:
     - name: "Fetching switch config"
@@ -13,6 +12,9 @@
         config:  " "
         archive_file: 'configs/{{ inventory_hostname }}-running.conf'
 
+ - hosts: localhost
+   gather_facts: False
+   tasks:
     - name: pull
       shell: git pull
       args:
