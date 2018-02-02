@@ -11,7 +11,7 @@
         password: "{{ passwd }}"
         commit_changes: False
         config:  " "
-        archive_file: 'configs/{{ lookup("pipe", "date +%s") }}-{{ inventory_hostname }}-running.conf'
+        archive_file: 'configs/{{ inventory_hostname }}-running.conf'
 
     - name: commit 
       shell: "{{ item }}"
