@@ -1,0 +1,61 @@
+---
+ - hosts: switches
+   connection: local
+   gather_facts: False
+   tasks:
+    - name: "Fetching switch config"
+      napalm_install_config:
+        hostname: "{{ ansible_host }}"
+        username: "{{ user }}"
+        dev_os: "{{ os }}"
+        password: "{{ passwd }}"
+        commit_changes: False
+        config:  " "
+        archive_file: 'configs/{{ inventory_hostname }}-running.conf'
+
+    - name: pull
+      shell: git pull
+      args:
+        chdir: ~/git/napalm-net 
+      register: pull
+      failed_when: pull.rc != 0 and pull.stderr != ""
+      changed_when: '"changed" in pull.stdout'
+      loop_control:
+        pause: 1
+
+    - name: add
+      shell: git add configs/
+      args:
+        chdir: ~/git/napalm-net 
+      register: commit 
+      failed_when: commit.rc != 0 and commit.stderr != ""
+      loop_control:
+        pause: 1
+
+    - name: commit 
+      shell: "git commit -m '{{ inventory_hostname }}-running.conf'"
+      args:
+        chdir: ~/git/napalm-net 
+      register: commit 
+      failed_when: commit.rc != 0 and commit.stderr != ""
+      changed_when: '"Your branch is up-to-date" not in commit.stdout'
+      loop_control:
+        pause: 1
+      
+    - name: push 
+      when: '"Your branch is up-to-date" not in commit.stdout'
+      shell: git push -u origin master
+      args:
+        chdir: ~/git/napalm-net 
+      register: result
+      changed_when: result.stderr != "Everything up-to-date"
+      loop_control:
+        pause: 1
+      
+       
+
+
+
+
+
+
